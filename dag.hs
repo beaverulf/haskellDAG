@@ -120,20 +120,23 @@ check_vertex_in_dag (DAG dag) a = exists_vertex (fst dag) a
 				--	  | otherwise test_filter xs id	
 
 
---Ta ut edge orign
+-- extract the origin vertex from an edge
 take_edge :: Edge e -> Int
 take_edge edge = origin edge
 
+-- extract the destination vertex from an edge
 take_orig :: Edge e -> Int
 take_orig edge = destination edge
 
+-- get all origins vertexes from an edgelist in a DAG
 get_origins :: [Edge e] -> [Int]
 get_origins (xs) = map take_edge xs
 
---get list of all origin in vid
+--get list of all origin vertexes id from a DAG
 get_olist :: DAG v e -> [Int]
 get_olist (DAG dag) = map take_edge $ snd dag
 
+--get list of all destination vertexes id from a DAG
 get_dlist :: DAG v e -> [Int]
 get_dlist (DAG dag) = map take_orig $ snd dag
 
@@ -160,6 +163,8 @@ part_list :: [Int] -> [Int] -> Bool
 part_list [] _ = False
 part_list (x:xs) l1 | (x `elem` l1)  = True
 					| otherwise = part_list xs l1
+
+
 
 -- gör id till lista 
 --is_cycle :: [Int] -> [Int] -> [Int] -> [Int] -> Bool
@@ -202,19 +207,29 @@ check_cycle (DAG dag) (x:xs) | (is_cycle (getol) (getdl) (getdes) (getID x) == T
 
 
 
+
+get_destlist :: [(Int,Int)] -> Int -> [Int]
+get_destlist [] _ = []
+get_destlist (x:xs) id | (snd x == id) = fst x : get_destlist xs id
+
+--get_incomming :: Int -> [Vertex v] -> [Int]
+--get_incomming d [] = []
+--get_incomming d (x:xs) =   
+
 --L ← Empty list that will contain the sorted nodes
 --while there are unmarked nodes do
 --    select an unmarked node n
 --    visit(n) 
---topo :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> Bool
---topo vl unmar tmar pmar top | (null unmar) -> False
---							  | otherwise 
+--topo :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
+--topo vl unmar tmar pmar top | (null unmar) = top
+--							| otherwise = visitt (head unmar) (vl) (tail unmar) (tmar) (pmar) (top)
+	--do if (null unmar) then (return top) else visitt x vl unmar tmar pmar top
 
---visitt :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
---visitt vl unmar tmar pmar top
+--visitt :: Int -> [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
+--visitt node vl unmar tmar pmar top | (n `elem` unmar) = 
 
 --function visit(node n)
-  --  if n has a temporary mark then stop (not a DAG)
+  --  if n has a temporary mark then stop (not a DAG) (n `elem` tmar) = töm unmar och top 
    -- if n is not marked (i.e. has not been visited yet) then
      --   mark n temporarily
       --  for each node m with an edge from n to m do
@@ -226,7 +241,14 @@ check_cycle (DAG dag) (x:xs) | (is_cycle (getol) (getdl) (getdes) (getID x) == T
 					
 
 							 
-								   
+-- kolla om d har o som dest 
+check_if_o_is_d :: DAG v e -> Int -> Int -> Bool
+check_if_o_is_d (DAG dag) o d | (o  `elem` getdes) = False
+							  | otherwise = True
+							   where getol = get_olist (DAG dag)
+          						 	 getdl = get_dlist (DAG dag)
+          						  	 getdes = get_dest (getol) (getdl) (d)
+
 
 
  
@@ -243,10 +265,16 @@ check_cycle (DAG dag) (x:xs) | (is_cycle (getol) (getdl) (getdes) (getID x) == T
 -- An edge from the vertex with vertex identifier a to the vertex
 -- with vertex identifier b is added to the DAG with weight w.
 add_edge :: DAG v e -> Int -> Int -> e -> DAG v e
-add_edge (DAG dag) o d w | check_vertex_in_dag (DAG dag) o &&  check_vertex_in_dag (DAG dag) d = DAG (fst dag, snd dag ++ [create_edge w o d]) 
+add_edge (DAG dag) o d w | check_vertex_in_dag (DAG dag) o &&  check_vertex_in_dag (DAG dag) d && check_if_o_is_d (DAG dag) (o) (d) && not (check_cycle (newdag) (reverse $ extract_vertexlist newdag)) = DAG (fst dag, snd dag ++ [create_edge w o d]) 
 						 | otherwise = (DAG dag)
+						 where newdag = DAG (fst dag, snd dag ++ [create_edge w o d])
+						 		   
+						 	 -- chcy = check_cycle (newdag) (reverse $ extract_vertexlist newdag)
+
+						 --where chcy = check_cycle (DAG (fst dag, snd dag ++ [create_edge w o d]) reverse )
 	--DAG (fst dag, snd dag ++ [create_edge w o d]) 
 
+-- && check_cycle (DAG (fst dag, snd dag ++ [create_edge w o d]))
 
 -- add_edge (DAG dag) o d w = DAG (fst dag, snd dag ++ [create_edge w o d]) 
 
@@ -260,19 +288,7 @@ add_edge (DAG dag) o d w | check_vertex_in_dag (DAG dag) o &&  check_vertex_in_d
 -- then all edges go from left to right.
 
 
---let d1 = create_dag 
---let d2 = snd $ add_vertex d1 0
---let d3 = snd $ add_vertex d2 1
---let d4 = snd $ add_vertex d3 2
---let d5 = snd $ add_vertex d4 3
---let d6 = snd $ add_vertex d5 4
---let d7 = add_edge d6 0 1 2
---let d8 = add_edge d7 0 2 3
---let d9 = add_edge d8 2 1 4
---let d10 = add_edge d9 2 3 5
---let d11 = add_edge d10 3 0 6
---let e1 = get_olist d11
---let e2 = get_dlist d11
+
 
 
 
