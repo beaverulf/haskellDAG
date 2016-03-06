@@ -1,0 +1,88 @@
+-- Ska inte funkar
+let d1 = create_dag 
+let d2 = snd $ add_vertex d1 0
+let d3 = snd $ add_vertex d2 1
+let d4 = snd $ add_vertex d3 2
+let d5 = snd $ add_vertex d4 3
+let d6 = snd $ add_vertex d5 4
+let d7 = add_edge d6 0 1 2
+let d8 = add_edge d7 0 2 3
+let d9 = add_edge d8 2 1 4
+let d10 = add_edge d9 2 3 5
+let d11 = add_edge d10 3 0 6
+let e1 = get_olist d11
+let e2 = get_dlist d11
+let e3 = get_dest e1 e2 0
+let v1 = extract_vertexlist d11
+
+
+
+let d1 = create_dag 
+let d2 = snd $ add_vertex d1 0
+let d3 = snd $ add_vertex d2 1
+let d4 = snd $ add_vertex d3 2
+let d5 = snd $ add_vertex d4 3
+let d6 = snd $ add_vertex d5 4
+let d7 = add_edge d6 0 1 2
+let d8 = add_edge d7 0 2 3
+let d9 = add_edge d8 2 1 4
+let d10 = add_edge d9 2 3 5
+let d11 = add_edge d10 3 0 6
+let e1 = get_olist d11
+let e2 = get_dlist d11
+let e3 = get_dest e1 e2 0
+let e4 = get_dest e1 e2 1
+let e5 = get_dest e1 e2 2
+let e6 = get_dest e1 e2 3
+let v1 = extract_vertexlist d11
+
+
+
+let d1 = create_dag 
+let d2 = snd $ add_vertex d1 0
+let d3 = snd $ add_vertex d2 1
+let d4 = snd $ add_vertex d3 2
+let d5 = snd $ add_vertex d4 3
+let d6 = snd $ add_vertex d5 4
+let d7 = add_edge d6 0 1 2
+let d8 = add_edge d7 0 2 3
+let d9 = add_edge d8 1 2 4
+let d10 = add_edge d9 2 3 5
+let d11 = add_edge d10 3 1 6
+let e1 = get_olist d11
+let e2 = get_dlist d11
+let e3 = get_dest e1 e2 0
+let e4 = get_dest e1 e2 1
+let v1 = extract_vertexlist d11
+
+
+-- Ska funka
+let d1 = create_dag 
+let d2 = snd $ add_vertex d1 0
+let d3 = snd $ add_vertex d2 1
+let d4 = snd $ add_vertex d3 2
+let d5 = snd $ add_vertex d4 3
+let d6 = snd $ add_vertex d5 4
+let d7 = add_edge d6 0 1 2
+let d8 = add_edge d7 0 2 3
+let d9 = add_edge d8 2 1 4
+let d10 = add_edge d9 2 3 5
+let d11 = add_edge d10 1 0 6
+let e1 = get_olist d11
+let e2 = get_dlist d11
+let e3 = get_dest e1 e2 0
+let v1 = extract_vertexlist d11
+let v2 = reverse v2 
+
+
+
+let d1 = create_dag 
+let d2 = snd $ add_vertex d1 0
+let d3 = snd $ add_vertex d2 1
+let d4 = snd $ add_vertex d3 2
+let d5 = snd $ add_vertex d4 3
+let d6 = add_edge d5 0 1 2
+let d7 = add_edge d6 0 2 3
+let d9 = add_edge d8 2 1 4
+let d10 = add_edge d9 2 3 5
+let d11 = add_edge d10 3 0 6

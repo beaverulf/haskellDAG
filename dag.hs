@@ -55,6 +55,8 @@ create_vertex (DAG dag) w = Vertex {vWeight = w, vid = id}
 getID :: Vertex v -> Int
 getID (Vertex _ i ) = i
 
+
+
 -- Creates an Edge
 -- Arguments: w : Weight of the edge.
 --            o : ID of the origin vertex.
@@ -109,7 +111,133 @@ check_vertex_in_dag :: DAG v e -> Int -> Bool
 check_vertex_in_dag (DAG dag) a = exists_vertex (fst dag) a
 	--(DAG ([],_))
 
---- *********Kolla om o's ID och  d's ID finns i DAGEN och kolla om det blir en cycel i add_edge
+
+-- origin $ head på listan ger origin 
+
+--test_filter :: [Edge e] -> Int -> Bool
+--test_filter [] _ = False
+--test_filter (o:xs) id | (origin o == id) = True
+				--	  | otherwise test_filter xs id	
+
+
+--Ta ut edge orign
+take_edge :: Edge e -> Int
+take_edge edge = origin edge
+
+take_orig :: Edge e -> Int
+take_orig edge = destination edge
+
+get_origins :: [Edge e] -> [Int]
+get_origins (xs) = map take_edge xs
+
+--get list of all origin in vid
+get_olist :: DAG v e -> [Int]
+get_olist (DAG dag) = map take_edge $ snd dag
+
+get_dlist :: DAG v e -> [Int]
+get_dlist (DAG dag) = map take_orig $ snd dag
+
+--get_dests :: [Int] -> [Int] -> Int -> [Int]
+--get_dests [] [] _ = []
+--get_dests (x:xs) (y:ys) id | (x == id) = y : get_dests xs ys id
+
+-- slå ihop två origin/destination listor till en lista av tupler
+make_tuple :: [Int] -> [Int] -> Int -> [(Int, Int)]
+make_tuple []     _   _   = []
+make_tuple (x:xs) (y:ys) id | (x == id) = (x, y) : make_tuple xs ys id
+						 | otherwise = make_tuple xs ys id
+
+-- Ta ut destinationerna frå make_tuple 
+get_dests :: [(Int,Int)] -> [Int]
+get_dests [] = []
+get_dests (x:xs) = snd x : get_dests xs
+
+-- få ut en lista med destinationer från origin id
+get_dest :: [Int] -> [Int] -> Int -> [Int]
+get_dest x y id = get_dests $ make_tuple x y id
+
+part_list :: [Int] -> [Int] -> Bool
+part_list [] _ = False
+part_list (x:xs) l1 | (x `elem` l1)  = True
+					| otherwise = part_list xs l1
+
+-- gör id till lista 
+--is_cycle :: [Int] -> [Int] -> [Int] -> [Int] -> Bool
+--is_cycle _ _ [] _ = False
+--is_cycle ol dl cd id | (part_list id cd == True) = True
+--			         | otherwise = is_cycle ol dl (tail $ cd ++ ncd) (head cd : id) -- (head cd : id) blir nog fel se (*) i papperet, jo det var det
+--			         where ncd = get_dest ol dl $ head cd
+			--		| is_cycle ol dl tail $ (get_dest ol dl $ head cd) ++ cd id 
+
+--den övre verionen är sämst och komer inte att fungera , problemet med denna är att
+-- det kan bli en oändlig loop. Men måste typ göra som pseudo koden och hålla reda på
+-- vilka vägar man har tagit. Lika bra att försöka göra en topological sort och inse om det blir cycel
+is_cycle :: [Int] -> [Int] -> [Int] -> Int -> Bool
+is_cycle _ _ [] _ = False
+is_cycle ol dl cd id | (id `elem` cd) = True
+			         | otherwise = is_cycle ol dl (tail $ cd ++ ncd) id -- vissa cycler lägger till samma sak här
+			         where ncd = get_dest ol dl $ head cd
+			--		| is_cycle ol dl tail $ (get_dest ol dl $ head cd) ++ cd id 
+
+--	is_cycle _ _ [] _ = False
+--is_cycle ol ol cd id | (id `elem` currdes) = True				
+ --otherwise = is_cycle ol dl tail $ (get_dest ol dl $ head cdis_) ++ cd id 
+					--__ allori alldes  (get_dest allori alldes head currdes)
+
+
+
+-- Måste göra reverse på vertexlistan, kanske funkarrr!!!!
+
+getIDl :: Vertex v -> [Int]
+getIDl (Vertex _ i ) = [i]
+
+check_cycle :: DAG v e -> [Vertex v] -> Bool
+check_cycle (DAG dag) [] = False
+check_cycle (DAG dag) (x:xs) | (is_cycle (getol) (getdl) (getdes) (getID x) == True) = True
+							 | otherwise = check_cycle (DAG dag) xs	
+							     where getol = get_olist (DAG dag)
+          							   getdl = get_dlist (DAG dag)
+          							   getdes = get_dest (getol) (getdl) (getID x)
+
+
+
+
+--L ← Empty list that will contain the sorted nodes
+--while there are unmarked nodes do
+--    select an unmarked node n
+--    visit(n) 
+--topo :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> Bool
+--topo vl unmar tmar pmar top | (null unmar) -> False
+--							  | otherwise 
+
+--visitt :: [Int] -> [Int] -> [Int] -> [Int] -> [Int] -> [Int]
+--visitt vl unmar tmar pmar top
+
+--function visit(node n)
+  --  if n has a temporary mark then stop (not a DAG)
+   -- if n is not marked (i.e. has not been visited yet) then
+     --   mark n temporarily
+      --  for each node m with an edge from n to m do
+      --      visit(m)
+     --   mark n permanently
+     --   unmark n temporarily
+     --   add n to head of L
+
+					
+
+							 
+								   
+
+
+ 
+
+--check_cycle (DAG dag) (x:[]) = is_cycle (get_olist (DAG dag)) (get_dlist (DAG dag)) (get_dest (get_olist (DAG dag)) (get_dlist (DAG dag)) (getID x)) (getID x)
+--check_cycle (DAG dag) (x:xs) = check_cycle (DAG dag) xs 
+
+-- check_vertex_in_dag (DAG dag) (getID x)
+
+	--is_cycle (get_olist (DAG dag)) (get_dlist dag) (get_dest (get_olist dag) (get_dlist dag) x) x
+
 
 -- add_edge(a,b,w)
 -- An edge from the vertex with vertex identifier a to the vertex
@@ -130,6 +258,23 @@ add_edge (DAG dag) o d w | check_vertex_in_dag (DAG dag) o &&  check_vertex_in_d
 -- Recall that a topological ordering is a linear ordering of a directed graph
 -- such that if the vertices of the graph are layed out from left to right in that order, 
 -- then all edges go from left to right.
+
+
+--let d1 = create_dag 
+--let d2 = snd $ add_vertex d1 0
+--let d3 = snd $ add_vertex d2 1
+--let d4 = snd $ add_vertex d3 2
+--let d5 = snd $ add_vertex d4 3
+--let d6 = snd $ add_vertex d5 4
+--let d7 = add_edge d6 0 1 2
+--let d8 = add_edge d7 0 2 3
+--let d9 = add_edge d8 2 1 4
+--let d10 = add_edge d9 2 3 5
+--let d11 = add_edge d10 3 0 6
+--let e1 = get_olist d11
+--let e2 = get_dlist d11
+
+
 
 
 
